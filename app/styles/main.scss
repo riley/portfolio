@@ -364,3 +364,46 @@ main {
   src: url(/fonts/RobotoCondensed-BoldItalic.eot);
   src: local('Roboto Condensed Bold Italic'), local('RobotoCondensed-BoldItalic'), url(/fonts/RobotoCondensed-BoldItalic.eot) format('embedded-opentype'), url(/fonts/RobotoCondensed-BoldItalic.woff) format('woff');
 }
+
+.site-info {
+  display: none;
+}
+
+@media (min-width: 600px) {
+  .app-bar {
+    display: none;
+  }
+  nav {
+    display: none;
+  }
+
+  main {
+    padding: 16px;
+  }
+
+  .tagline {
+    display: none;
+  }
+
+  .site-info { /* the left column with logos and whatnot */
+    display: block;
+    left: 0;
+    height: 100%;
+    background: $colorBlue;
+    width: 200px;
+    postition: fixed;
+    float: left;
+    padding: 15px;
+  }
+
+  .site-info-nav {
+    padding: 0;
+
+    li {
+      a {
+        color: white;
+      }
+    }
+  }
+
+}

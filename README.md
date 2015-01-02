@@ -4,6 +4,8 @@
 
 [rileydav.is](http://rileydav.is) is my personal portfolio site/blog. This is the 2015 update -- I haven't touched my personal site since I left DXD and moved from Kansas City more than 5 years ago.
 
+start the app with `gulp serve`
+
 ## Setup
 
 I wanted to try Google's Web Starter Kit, since it seems like you have to spend some time unwinding Bootstrap's styles unless you want to be stuck with them for longer than most apps live.
