@@ -369,6 +369,15 @@ main {
   display: none;
 }
 
+.logo a {
+  color: white;
+  text-decoration: none;
+
+  &:hover {
+    color: lightblue;
+  }
+}
+
 @media (min-width: 600px) {
   .app-bar {
     display: none;

@@ -1,23 +1,27 @@
 .small {
-
+    font-size: $fontSmall;
 }
 
 .medium {
-
+    font-size: $fontMedium;
 }
 
 .large {
-
+    font-size: $fontLarge;
 }
 
 .xlarge {
-
+    font-size: $fontXLarge;
 }
 
 .xxlarge {
-
+    font-size: $fontXXLarge;
 }
 
 .huge {
+    font-size: $fontHuge;
+}
 
+.small, .medium, .large, .xlarge, .xxlarge, .huge {
+    line-height: 1em;
 }
