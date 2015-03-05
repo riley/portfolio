@@ -33,7 +33,7 @@
     <header class="app-bar promote-layer">
       <div class="app-bar-container">
         <button class="menu"><img src="images/hamburger.svg" alt="Menu"></button>
-        <h1 class="logo">rileydav.is <strong>R+D</strong></h1>
+        <h1 class="logo">rileydav.is <strong>r+d</strong></h1>
         <section class="app-bar-actions">
         <!-- Put App Bar Buttons Here -->
         <!-- e.g <button><i class="icon icon-star"></i></button> -->
@@ -53,7 +53,30 @@
     </nav>
 
     <section class="site-info">
-      <p class="huge logo"><a href="/">R+D</a></p>
+      <!-- <p class="huge logo"><a href="/">r+d</a></p> -->
+
+      <svg class="logo" id="logo" width="200" height="100" viewBox="-2 -2 160 80">
+        <defs>
+          <mask id="mask">
+            <rect class="i-like-to" width="60" height="60" x="0" y="0" fill="#ffffff" stroke-style="none"/>
+          </mask>
+        </defs>
+        <rect x="0" y="0" width="60" height="60" fill="#B11952" stroke="white" stroke-width="2"/>
+        <rect x="60" y="0" width="60" height="60" fill="#B11952" stroke="white" stroke-width="2" />
+
+        <rect class="i-like-to" x="0" y="0" width="60" height="60" fill="white"/>
+
+        <text x="30" y="30" text-anchor="middle" font-size="40" dy="13" fill="white">R</text>
+        <text x="60" y="30" text-anchor="middle" font-size="40" dy="13" fill="white">+</text>
+        <text x="90" y="30" text-anchor="middle" font-size="40" dy="13" fill="white">D</text>
+
+        <text x="30" y="30" text-anchor="middle" font-size="40" dy="13" fill="#B11952" mask="url(#mask)">R</text>
+        <text x="90" y="30" text-anchor="middle" font-size="40" dy="13" fill="#B11952" mask="url(#mask)">D</text>
+        <text x="60" y="30" text-anchor="middle" font-size="40" dy="13" fill="#B11952" mask="url(#mask)">+</text>
+
+      </svg>
+
+      <p class="site-id">rileydav.is</p>
       <p class="about-riley">On graphics, math and data visualization. Assembled by creator of digital goods, Riley Davis.</p>
       <ul>
         <li><a href="about.html">About/Work</a></li>

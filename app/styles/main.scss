@@ -312,7 +312,7 @@ main {
   }
 
   main {
-    // max-width: 864px;
+    max-width: 864px;
     padding-top: 0;
     min-height: initial;
   }
@@ -376,6 +376,7 @@ main {
 
 .logo {
   margin: 0;
+  font-weight: bold;
 
   a {
     color: white;
@@ -412,8 +413,22 @@ header .tagline {
     display: none;
   }
 
-  .huge.logo {
-    letter-spacing: -0.05em;
+  .logo {
+
+  }
+
+  .i-like-to {
+    transition: all 1s ease-out 2s;
+    transform: translate(0px, 0px);
+  }
+
+  .move-it-move-it {
+    transform: translate(60px, 0px);
+  }
+
+  .site-id {
+    margin: -10px 4px 20px;
+    color: white;
   }
 
   .site-info { /* the left column with logos and whatnot */
@@ -437,9 +452,25 @@ header .tagline {
     li {
       list-style: none;
 
-      &:hover:after {
+      &:after {
         content: ' \00BB'; /* raquo */
-        color: white;
+        color: $colorMagenta;
+        font-weight: bold;
+        background: white;
+        width: 20px;
+        height: 20px;
+        display: inline-block;
+        border-radius: 10px;
+        text-align: center;
+        line-height: .8em;
+        margin-left: 10px;
+        opacity: 0;
+        @include transition(all, 0.1s, linear);
+      }
+
+      &:hover:after {
+        opacity: 1;
+        transform: translate(5px, 0);
       }
 
       a {
