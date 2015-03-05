@@ -52,8 +52,6 @@
   setTimeout(function () {
     var rects = document.getElementsByClassName('i-like-to');
 
-    console.log(rects);
-
     Array.prototype.forEach.call(rects, function (r) {
       r.classList.add('move-it-move-it');
     });

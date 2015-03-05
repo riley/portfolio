@@ -418,17 +418,27 @@ header .tagline {
   }
 
   .i-like-to {
-    transition: all 1s ease-out 2s;
+    -webkit-transition: all .6s cubic-bezier(0.23, 1, 0.32, 1) 2s;
+    transition: all .6s cubic-bezier(0.23, 1, 0.32, 1) 2s;
+    -webkit-transform: translate(0px, 0px);
     transform: translate(0px, 0px);
   }
 
   .move-it-move-it {
+    -webkit-transform: translate(60px, 0);
     transform: translate(60px, 0px);
   }
 
   .site-id {
     margin: -10px 4px 20px;
-    color: white;
+    a {
+      color: white;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
   }
 
   .site-info { /* the left column with logos and whatnot */

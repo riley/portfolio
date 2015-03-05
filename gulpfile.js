@@ -152,6 +152,7 @@ gulp.task('serve', ['styles'], function () {
     server: ['.tmp', 'app']
   });
 
+  gulp.watch(['app/_posts/md/*.md'], reload);
   gulp.watch(['app/**/*.html'], reload);
   gulp.watch(['app/styles/**/*.{scss,css}'], ['styles', reload]);
   gulp.watch(['app/scripts/**/*.js'], ['jshint']);
@@ -172,7 +173,7 @@ gulp.task('serve:dist', ['default'], function () {
 
 // Build Production Files, the Default Task
 gulp.task('default', ['clean'], function (cb) {
-  runSequence('styles', ['jshint', 'html', 'images', 'fonts', 'copy'], cb);
+  runSequence('styles', ['jshint', 'convert', 'html', 'images', 'fonts', 'copy'], cb);
 });
 
 // Run PageSpeed Insights
