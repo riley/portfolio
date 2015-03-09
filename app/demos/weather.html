@@ -66,7 +66,10 @@ NodeList.prototype.forEach = Array.prototype.forEach;
         width = window.innerWidth - margin.left - margin.right;
         height = window.innerWidth / 3 - margin.top - margin.bottom;
 
-        x = d3.scale.linear().domain([0, 364]).range([0, width]);
+        // x = d3.scale.linear().domain([0, 364]).range([0, width]);
+        x = d3.time.scale()
+            .domain([new Date(2014, 0, 1), new Date(2014, 11, 31)])
+            .range([0, width]);
         y = d3.scale.linear().domain([0, 100]).range([height, 0]);
 
         var yAxis = d3.svg.axis()
@@ -77,7 +80,8 @@ NodeList.prototype.forEach = Array.prototype.forEach;
         var xAxis = d3.svg.axis()
             .scale(x)
             .orient('bottom')
-            .tickValues(d3.time.month.range(new Date(data.portland[0]), new Date(data.portland[data.portland.length - 1])), 1);
+            .ticks(d3.time.months)
+            .tickFormat(d3.time.format('%B'));
 
         svg = d3.select('#chart')
             .attr('width', width + margin.left + margin.right)
@@ -99,14 +103,18 @@ NodeList.prototype.forEach = Array.prototype.forEach;
         svg.append('g') // x axis
             .attr('class', 'x axis')
             .attr('transform', 'translate(0,' + (y(0)) + ')') // cross @ 0
-            .call(xAxis);
+            .call(xAxis)
+            .selectAll('.tick text')
+            .style('text-anchor', 'start')
+            .attr('x', 6)
+            .attr('y', 6);
 
         // add all the bars
         svg.selectAll('.bar')
             .data(data.portland)
             .enter().append('rect')
                 .attr('class', 'bar')
-                .attr('x', function (d, i) { return x(i); })
+                .attr('x', function (d) { return x(d.date); })
                 .attr('y', function (d) { return y(d.high); })
                 .attr('width', 2)
                 .attr('height', function (d) { return height - y(d.high - d.low); })
@@ -133,6 +141,10 @@ NodeList.prototype.forEach = Array.prototype.forEach;
                     data[city] = JSON.parse(xhr.responseText);
 
                     console.log(data[city]);
+
+                    data[city].forEach(function (o) {
+                        o.date = new Date(o.date);
+                    });
 
                     if (++loaded === cities.length) {
                         draw();
