@@ -16,6 +16,9 @@
  *  limitations under the License
  *
  */
+
+NodeList.prototype.forEach = HTMLCollection.prototype.forEach = Array.prototype.forEach;
+
 (function () {
   'use strict';
 
@@ -42,10 +45,14 @@
 
   main.addEventListener('click', closeMenu);
   menuBtn.addEventListener('click', toggleMenu);
-  navdrawerContainer.addEventListener('click', function (event) {
+  navdrawerContainer.addEventListener('click', function (eevnt) {
     if (event.target.nodeName === 'A' || event.target.nodeName === 'LI') {
       closeMenu();
     }
+  });
+
+  document.querySelectorAll('article a').forEach(function (anchor) {
+    anchor.setAttribute('target', '_blank');
   });
 
 

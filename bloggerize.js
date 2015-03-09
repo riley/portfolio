@@ -8,7 +8,7 @@ var ejs = require('ejs');
 var deleteFolderRecursive = function(path) {
   if( fs.existsSync(path) ) {
     fs.readdirSync(path).forEach(function(file,index){
-      var curPath = path + "/" + file;
+      var curPath = path + '/' + file;
       if(fs.lstatSync(curPath).isDirectory()) { // recurse
         deleteFolderRecursive(curPath);
       } else { // delete file
@@ -25,7 +25,7 @@ var homePagePostCount = 5;
 var posts = fs.readdirSync('app/_posts').map(function (file) {
     return {
         fileName: file,
-        html: marked(fs.readFileSync('app/_posts/' + file).toString())
+        html: '<article>' + marked(fs.readFileSync('app/_posts/' + file).toString()) + '</article>'
     };
 });
 
@@ -35,7 +35,6 @@ var workStub = fs.readFileSync('app/stubs/work_stub.html').toString();
 
 var index = ejs.render(indexStr, {title: 'Home', content: posts.slice(0, homePagePostCount).map(function (post) { return post.html; })}, {debug: true});
 var about = ejs.render(indexStr, {title: 'About', content: '<ul class="work" id="work">' + workStub + '</ul>'});
-
 
 deleteFolderRecursive('app/blog'); // delete all old posts
 fs.mkdirSync('app/blog');

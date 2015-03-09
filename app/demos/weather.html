@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
+<style>
+* { font-family: 'Lato', sans-serif; }
+.cities {
+    padding: 0;
+}
+.cities li {
+    list-style: none;
+    background: #eee;
+    padding: 5px 8px;
+    cursor: pointer;
+    display: inline-block;
+    margin-right: 3px;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+.cities li:hover {
+    background: #ccc;
+}
+.cities li.active {
+    background: pink;
+}
+
+.axis path,
+.axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+}
+
+.axis text {
+    font-size: 11px;
+    fill: black;
+}
+</style>
+</head>
+<body>
+    <svg id="chart"></svg>
+    <ul id="cities" class="cities"></ul>
+<script src="js/d3.min.js"></script>
+<script>
+/* global d3 */
+'use strict';
+
+NodeList.prototype.forEach = Array.prototype.forEach;
+
+(function () {
+    var cities = ['portland', 'nyc', 'boulder', 'la'];
+    var data = {};
+    var loaded = 0;
+
+    var svg;
+    var x, y;
+    var width, height;
+
+    function draw() {
+        var colors = d3.scale.category20();
+        var margin = {top: 40, right: 20, bottom: 30, left: 40};
+        width = window.innerWidth - margin.left - margin.right;
+        height = window.innerWidth / 3 - margin.top - margin.bottom;
+
+        x = d3.scale.linear().domain([0, 364]).range([0, width]);
+        y = d3.scale.linear().domain([0, 100]).range([height, 0]);
+
+        var yAxis = d3.svg.axis()
+            .scale(y)
+            .orient('left')
+            .ticks(5);
+
+        var xAxis = d3.svg.axis()
+            .scale(x)
+            .orient('bottom')
+            .tickValues(d3.time.month.range(new Date(data.portland[0]), new Date(data.portland[data.portland.length - 1])), 1);
+
+        svg = d3.select('#chart')
+            .attr('width', width + margin.left + margin.right)
+            .attr('height', height + margin.top + margin.bottom)
+            .append('g')
+                .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+        // add the tick marks on y axis
+        svg.append('g')
+            .attr('class', 'y axis')
+            .call(yAxis)
+            .append('text')
+                .attr('transform', 'rotate(-90)')
+                .attr('y', 6)
+                .attr('dy', '.71em')
+                .style('text-anchor', 'end')
+                .text('temp');
+
+        svg.append('g') // x axis
+            .attr('class', 'x axis')
+            .attr('transform', 'translate(0,' + (y(0)) + ')') // cross @ 0
+            .call(xAxis);
+
+        // add all the bars
+        svg.selectAll('.bar')
+            .data(data.portland)
+            .enter().append('rect')
+                .attr('class', 'bar')
+                .attr('x', function (d, i) { return x(i); })
+                .attr('y', function (d) { return y(d.high); })
+                .attr('width', 2)
+                .attr('height', function (d) { return height - y(d.high - d.low); })
+                .attr('fill', function (d) { return colors(new Date(d.date).getMonth()); });
+
+    }
+
+    function init() {
+        var cityList = document.getElementById('cities');
+
+        cities.forEach(function (city, i) {
+
+            cityList.insertAdjacentHTML('beforeend', '<li class="city-name">' + city + '</li>');
+            cityList.childNodes[cityList.childNodes.length - 1].addEventListener('click', updateCity);
+            if (i === 0) {
+                cityList.childNodes[0].classList.add('active');
+            }
+
+            console.log(city);
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', 'data/' + city + '.json');
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    data[city] = JSON.parse(xhr.responseText);
+
+                    console.log(data[city]);
+
+                    if (++loaded === cities.length) {
+                        draw();
+                    }
+
+                } else {
+                    // display error
+                    console.log(xhr.status);
+                }
+            };
+            xhr.send(null);
+        });
+    }
+
+    function updateCity(e) {
+        console.log(e);
+        svg.selectAll('.bar')
+            .data(data[e.target.textContent])
+            .transition()
+            .attr('y', function (d) { return y(d.high); })
+            .attr('height', function (d) { return height - y(d.high - d.low); });
+
+        document.querySelectorAll('.city-name').forEach(function (node) { node.classList.remove('active'); });
+        e.target.classList.add('active');
+    }
+
+    init();
+})();
+</script>
+</body>
+</html>

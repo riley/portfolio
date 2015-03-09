@@ -1,5 +1,7 @@
 ## JavaScript Enigma Machine (Pt. 1)
 
+#### March 9, 2015
+
 Recently I had the opportunity to build a WWII Enigma Machine simulator for work. This was a blast for several reasons.
 
 - It's an Enigma machine - super cool
