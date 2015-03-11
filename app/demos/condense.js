@@ -2,20 +2,24 @@
 
 var fs = require('fs');
 
-var matcher = new RegExp('(boulder|nyc|portland|la)_2014');
-var files = {
-    portland: fs.readdirSync('/repos/portland/data/portland').filter(function (name) { return name.match(matcher); }),
-    boulder: fs.readdirSync('/repos/portland/data/boulder').filter(function (name) { return name.match(matcher); }),
-    nyc: fs.readdirSync('/repos/portland/data/nyc').filter(function (name) { return name.match(matcher); }),
-    la: fs.readdirSync('/repos/portland/data/la').filter(function (name) { return name.match(matcher); })
-};
+var cities = ['denver', 'nyc', 'portland', 'la', 'chicago', 'kc'];
+
+var matcher = new RegExp('(' + cities.join('|') + ')_2014');
+var matchingFilter = function (name) { return name.match(matcher); };
+
+var files = cities.reduce(function (memo, city) {
+    memo[city] = fs.readdirSync('/repos/weather/data/' + city).filter(matchingFilter);
+    return memo;
+}, {});
 
 var data = Object.keys(files).reduce(function (m, key) {
     m[key] = files[key].map(function (file) {
-        return JSON.parse(fs.readFileSync('/repos/portland/data/' + key + '/' + file).toString());
+        return JSON.parse(fs.readFileSync('/repos/weather/data/' + key + '/' + file).toString());
     });
     return m;
 }, {});
+
+var finalData = {};
 
 Object.keys(data).forEach(function (city) {
     console.log('parsing ' + city);
@@ -31,16 +35,20 @@ Object.keys(data).forEach(function (city) {
         return {
             low: low,
             high: high,
-            avg: parseFloat(avg.toString(2), 10),
+            conds: json.history.observations.map(function (o) { return o.conds; }),
+            avg: parseFloat(avg.toFixed(2), 10),
             date: date,
             precip: parseFloat(json.history.dailysummary[0].precipi, 10)
         };
     });
 
+    finalData[city] = dailies;
 
-    fs.writeFileSync('./data/' + city + '.json', JSON.stringify(dailies));
     console.log('created ' + city);
 });
+
+fs.writeFileSync('./data/dailies.json', JSON.stringify(finalData));
+
 
 console.log('done');
 process.exit();

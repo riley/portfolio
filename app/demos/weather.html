@@ -3,6 +3,7 @@
 <head>
 <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
 <style>
+body {padding: 0; margin: 0;}
 * { font-family: 'Lato', sans-serif; }
 .cities {
     padding: 0;
@@ -32,13 +33,39 @@
 .axis line {
     fill: none;
     stroke: #000;
+    stroke-opacity: .3;
     shape-rendering: crispEdges;
 }
 
 .axis text {
     font-size: 11px;
-    fill: black;
+    fill: #888;
 }
+
+.x .tick line {
+    shape-rendering: crispEdges;
+    stroke: #000;
+    stroke-width: 1px;
+    stroke-dasharray: 2,2;
+    stroke-opacity: .3;
+}
+
+.precip {
+    fill: none;
+    stroke: lightblue;
+    stroke-width: 1px;
+}
+
+.quart {
+    pointer-events: none;
+}
+
+.median {
+    stroke: black;
+    stroke-width: 1px;
+    fill: none;
+}
+
 </style>
 </head>
 <body>
@@ -52,19 +79,69 @@
 NodeList.prototype.forEach = Array.prototype.forEach;
 
 (function () {
-    var cities = ['portland', 'nyc', 'boulder', 'la'];
-    var data = {};
+    var cities = [];
     var loaded = 0;
 
     var svg;
     var x, y;
     var width, height;
+    var line;
+    var averages, dailies;
+
+    var bars;
+
+
+    function init() {
+        var cityList = document.getElementById('cities');
+
+        var fileList = ['averages', 'dailies'];
+
+        function toDate(o) {
+            o.date = new Date(o.date);
+        }
+
+        fileList.forEach(function (file, i) {
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', 'data/' + file + '.json');
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    var json = JSON.parse(xhr.responseText);
+                    if (file === 'averages') {
+                        averages = json;
+                        cities = Object.keys(averages);
+                        Object.keys(averages).forEach(function (city, i) {
+                            cityList.insertAdjacentHTML('beforeend', '<li class="city-name">' + city + '</li>');
+                            cityList.childNodes[cityList.childNodes.length - 1].addEventListener('click', updateCity);
+                            if (i === 0) {
+                                cityList.childNodes[0].classList.add('active');
+                            }
+
+                            averages[city].forEach(toDate);
+                        });
+                    } else if (file === 'dailies') {
+                        dailies = json;
+                        Object.keys(dailies).forEach(function (city) {
+                            dailies[city].forEach(toDate);
+                        });
+                    }
+
+                    if (++loaded === fileList.length) draw();
+                } else {
+                    console.log('failed to load file ' + file + ' ' + xhr.status);
+                }
+            };
+            xhr.send(null);
+        });
+    }
 
     function draw() {
-        var colors = d3.scale.category20();
-        var margin = {top: 40, right: 20, bottom: 30, left: 40};
+        console.log('averages', averages, 'dailies', dailies);
+
+        var margin = {top: 40, right: 50, bottom: 30, left: 40};
         width = window.innerWidth - margin.left - margin.right;
         height = window.innerWidth / 3 - margin.top - margin.bottom;
+        var barWidth = width / 365 - 1;
 
         // x = d3.scale.linear().domain([0, 364]).range([0, width]);
         x = d3.time.scale()
@@ -72,10 +149,15 @@ NodeList.prototype.forEach = Array.prototype.forEach;
             .range([0, width]);
         y = d3.scale.linear().domain([0, 100]).range([height, 0]);
 
-        var yAxis = d3.svg.axis()
+        var yAxisLeft = d3.svg.axis()
             .scale(y)
             .orient('left')
             .ticks(5);
+
+        // var yAxisRight = d3.svg.axis()
+        //     .scale(y)
+        //     .orient('right')
+        //     .ticks(10);
 
         var xAxis = d3.svg.axis()
             .scale(x)
@@ -91,84 +173,160 @@ NodeList.prototype.forEach = Array.prototype.forEach;
 
         // add the tick marks on y axis
         svg.append('g')
-            .attr('class', 'y axis')
-            .call(yAxis)
+            .attr('class', 'y axis left')
+            .call(yAxisLeft)
             .append('text')
                 .attr('transform', 'rotate(-90)')
                 .attr('y', 6)
                 .attr('dy', '.71em')
                 .style('text-anchor', 'end')
-                .text('temp');
+                .text('temp °F');
+
+        // svg.append('g')
+        //     .attr('class', 'y axis right')
+        //     .attr('transform', 'translate(' + width + ', 0)')
+        //     .call(yAxisRight)
+        //     .append('text')
+        //         .attr('transform', 'rotate(90)')
+        //         .attr('y', 6)
+        //         .attr('dy', '.71em')
+        //         .style('text-anchor', 'end')
+        //         .text('precipitation in.');
+
 
         svg.append('g') // x axis
             .attr('class', 'x axis')
-            .attr('transform', 'translate(0,' + (y(0)) + ')') // cross @ 0
+            .attr('transform', 'translate(0,' + y(0) + ')') // cross @ 0
             .call(xAxis)
             .selectAll('.tick text')
-            .style('text-anchor', 'start')
-            .attr('x', 6)
-            .attr('y', 6);
+                .style('text-anchor', 'start')
+                .attr('x', 6)
+                .attr('y', 6);
 
-        // add all the bars
-        svg.selectAll('.bar')
-            .data(data.portland)
+        svg.selectAll('.x .tick line')
+            .attr('transform', 'translate(0,' + -height + ')')
+            .attr('y2', height);
+
+        // line = d3.svg.line()
+        //     .x(function (d) { return x(d.date); })
+        //     .y(function (d) { return height - d.precip * 20; });
+
+        // svg.append('path')
+        //     .data([dailies[cities[0]]])
+        //     .attr('class', 'precip')
+        //     .attr('d', line);
+
+        // averages
+        svg.selectAll('.average-bar')
+            .data(averages[cities[0]])
+            .enter().append('rect')
+                .attr('class', 'average-bar')
+                .attr('x', function (d) { return x(d.date); })
+                .attr('y', function (d) { return y(d.maxAvg); })
+                .attr('width', barWidth)
+                .attr('height', function (d) { return height - y(d.maxAvg - d.minAvg); })
+                .attr('fill', '#aec7e8');
+                // .attr('fill-opacity', 0.5);
+
+
+        // draw inner quartile
+        svg.selectAll('.quart')
+            .data(averages[cities[0]])
+            .enter().append('rect')
+                .attr('class', 'quart')
+                .attr('x', function (d) { return x(d.date); })
+                .attr('y', function (d) { return y(d3.quantile(d.numbers, 0.75)); })
+                .attr('width', barWidth)
+                .attr('height', function (d) {
+                    return height - y(d3.quantile(d.numbers, 0.75) - d3.quantile(d.numbers, 0.25));
+                })
+                .attr('fill', '#1f77b4');
+
+        // draw the median
+        svg.selectAll('.median')
+            .data(averages[cities[0]])
+            .enter().append('line')
+                .attr('class', 'median')
+                .attr('x1', function (d) { return x(d.date); })
+                .attr('x2', function (d) { return x(d.date) + barWidth; })
+                .attr('transform', function (d) { return 'translate(0,' + y(d3.quantile(d.numbers, 0.5)) + ')'; });
+
+        // add all the 2014 bars
+        bars = svg.selectAll('.bar')
+            .data(dailies[cities[0]])
             .enter().append('rect')
                 .attr('class', 'bar')
                 .attr('x', function (d) { return x(d.date); })
                 .attr('y', function (d) { return y(d.high); })
-                .attr('width', 2)
+                .attr('width', barWidth)
                 .attr('height', function (d) { return height - y(d.high - d.low); })
-                .attr('fill', function (d) { return colors(new Date(d.date).getMonth()); });
+                .attr('fill', 'black')
+                .attr('fill-opacity', 0);
 
-    }
+        svg.selectAll('.hit')
+            .data(dailies[cities[0]])
+            .enter().append('rect')
+                .attr('class', 'hit')
+                .attr('x', function (d) { return x(d.date); })
+                .attr('y', 0)
+                .attr('width', barWidth)
+                .attr('height', height)
+                .attr('fill', 'rgba(254, 254, 254, 0.001)')
+                .on('mouseover', showDetail);
 
-    function init() {
-        var cityList = document.getElementById('cities');
 
-        cities.forEach(function (city, i) {
-
-            cityList.insertAdjacentHTML('beforeend', '<li class="city-name">' + city + '</li>');
-            cityList.childNodes[cityList.childNodes.length - 1].addEventListener('click', updateCity);
-            if (i === 0) {
-                cityList.childNodes[0].classList.add('active');
-            }
-
-            console.log(city);
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', 'data/' + city + '.json');
-            xhr.onload = function () {
-                if (xhr.status === 200) {
-                    data[city] = JSON.parse(xhr.responseText);
-
-                    console.log(data[city]);
-
-                    data[city].forEach(function (o) {
-                        o.date = new Date(o.date);
-                    });
-
-                    if (++loaded === cities.length) {
-                        draw();
-                    }
-
-                } else {
-                    // display error
-                    console.log(xhr.status);
-                }
-            };
-            xhr.send(null);
-        });
     }
 
     function updateCity(e) {
         console.log(e);
         svg.selectAll('.bar')
-            .data(data[e.target.textContent])
+            .data(dailies[e.target.textContent])
             .transition()
             .attr('y', function (d) { return y(d.high); })
             .attr('height', function (d) { return height - y(d.high - d.low); });
 
+        // averages
+        svg.selectAll('.average-bar')
+            .data(averages[e.target.textContent])
+            .transition()
+                .attr('y', function (d) { return y(d.maxAvg); })
+                .attr('height', function (d) { return height - y(d.maxAvg - d.minAvg); });
+
+        svg.selectAll('.quart')
+            .data(averages[e.target.textContent])
+            .transition()
+                .attr('y', function (d) { return y(d3.quantile(d.numbers, 0.75)); })
+                .attr('height', function (d) {
+                    return height - y(d3.quantile(d.numbers, 0.75) - d3.quantile(d.numbers, 0.25));
+                });
+
+        svg.selectAll('.median')
+            .data(averages[e.target.textContent])
+            .transition()
+                .attr('transform', function (d) { return 'translate(0,' + y(d3.quantile(d.numbers, 0.5)) + ')'; });
+
+        // svg.select('.precip')
+        //     .data([dailies[e.target.textContent]])
+        //     .transition()
+        //         .attr('d', line);
+
         document.querySelectorAll('.city-name').forEach(function (node) { node.classList.remove('active'); });
         e.target.classList.add('active');
+    }
+
+    function showDetail(d, index) {
+        var spread = 20;
+        bars.attr('fill-opacity', function (d, i) {
+            var offset = Math.abs(i - index);
+            if (offset < spread) {
+                // return 1 - offset / spread;
+                return 0.5;
+            } else {
+                return 0;
+            }
+            // return i / offset;
+        });
+
     }
 
     init();
