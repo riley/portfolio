@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+<title>D3 Weather App</title>
 <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
 <style>
 body {padding: 0; margin: 0;}
@@ -56,21 +57,31 @@ body {padding: 0; margin: 0;}
     stroke-width: 1px;
 }
 
-.quart {
-    pointer-events: none;
-}
-
 .median {
     stroke: black;
     stroke-width: 1px;
     fill: none;
 }
 
+.average-bar, .quart, .bar, .median {
+    pointer-events: none;
+}
+
+#sunshine .y .tick line, #sunshine path {
+    stroke-opacity: 0;
+}
+
 </style>
 </head>
 <body>
-    <svg id="chart"></svg>
-    <ul id="cities" class="cities"></ul>
+    <main>
+        <article>
+            <svg id="chart"></svg>
+            <ul id="cities" class="cities"></ul>
+            <p>And sunshine of all cities</p>
+            <svg id="sunshine"></svg>
+        </article>
+    </main>
 <script src="js/d3.min.js"></script>
 <script>
 /* global d3 */
@@ -85,14 +96,14 @@ NodeList.prototype.forEach = Array.prototype.forEach;
     var svg;
     var x, y;
     var width, height;
-    var line;
+    // var line;
     var averages, dailies;
 
     var bars;
 
 
     function init() {
-        var cityList = document.getElementById('cities');
+        var cityUl = document.getElementById('cities');
 
         var fileList = ['averages', 'dailies'];
 
@@ -111,10 +122,10 @@ NodeList.prototype.forEach = Array.prototype.forEach;
                         averages = json;
                         cities = Object.keys(averages);
                         Object.keys(averages).forEach(function (city, i) {
-                            cityList.insertAdjacentHTML('beforeend', '<li class="city-name">' + city + '</li>');
-                            cityList.childNodes[cityList.childNodes.length - 1].addEventListener('click', updateCity);
+                            cityUl.insertAdjacentHTML('beforeend', '<li class="city-name">' + city + '</li>');
+                            cityUl.childNodes[cityUl.childNodes.length - 1].addEventListener('click', updateCity);
                             if (i === 0) {
-                                cityList.childNodes[0].classList.add('active');
+                                cityUl.childNodes[0].classList.add('active');
                             }
 
                             averages[city].forEach(toDate);
@@ -138,26 +149,24 @@ NodeList.prototype.forEach = Array.prototype.forEach;
     function draw() {
         console.log('averages', averages, 'dailies', dailies);
 
+        var windowWidth = window.innerWidth - 100;
+
         var margin = {top: 40, right: 50, bottom: 30, left: 40};
-        width = window.innerWidth - margin.left - margin.right;
-        height = window.innerWidth / 3 - margin.top - margin.bottom;
+        width = windowWidth - margin.left - margin.right;
+        height = windowWidth / 3 - margin.top - margin.bottom;
         var barWidth = width / 365 - 1;
 
-        // x = d3.scale.linear().domain([0, 364]).range([0, width]);
+        var initCity = cities[0];
+
         x = d3.time.scale()
             .domain([new Date(2014, 0, 1), new Date(2014, 11, 31)])
             .range([0, width]);
         y = d3.scale.linear().domain([0, 100]).range([height, 0]);
 
-        var yAxisLeft = d3.svg.axis()
+        var yAxis = d3.svg.axis()
             .scale(y)
             .orient('left')
             .ticks(5);
-
-        // var yAxisRight = d3.svg.axis()
-        //     .scale(y)
-        //     .orient('right')
-        //     .ticks(10);
 
         var xAxis = d3.svg.axis()
             .scale(x)
@@ -174,25 +183,13 @@ NodeList.prototype.forEach = Array.prototype.forEach;
         // add the tick marks on y axis
         svg.append('g')
             .attr('class', 'y axis left')
-            .call(yAxisLeft)
+            .call(yAxis)
             .append('text')
                 .attr('transform', 'rotate(-90)')
                 .attr('y', 6)
                 .attr('dy', '.71em')
                 .style('text-anchor', 'end')
                 .text('temp °F');
-
-        // svg.append('g')
-        //     .attr('class', 'y axis right')
-        //     .attr('transform', 'translate(' + width + ', 0)')
-        //     .call(yAxisRight)
-        //     .append('text')
-        //         .attr('transform', 'rotate(90)')
-        //         .attr('y', 6)
-        //         .attr('dy', '.71em')
-        //         .style('text-anchor', 'end')
-        //         .text('precipitation in.');
-
 
         svg.append('g') // x axis
             .attr('class', 'x axis')
@@ -207,18 +204,21 @@ NodeList.prototype.forEach = Array.prototype.forEach;
             .attr('transform', 'translate(0,' + -height + ')')
             .attr('y2', height);
 
-        // line = d3.svg.line()
-        //     .x(function (d) { return x(d.date); })
-        //     .y(function (d) { return height - d.precip * 20; });
-
-        // svg.append('path')
-        //     .data([dailies[cities[0]]])
-        //     .attr('class', 'precip')
-        //     .attr('d', line);
+        // make mouseover targets the entire height of visualization for usability
+        svg.selectAll('.conditions')
+            .data(dailies[initCity])
+            .enter().append('rect')
+                .attr('class', 'conditions')
+                .attr('x', function (d) { return x(d.date); })
+                .attr('y', y(105))
+                .attr('width', barWidth)
+                .attr('height', y(97))
+                .attr('fill', '#ed0')
+                .attr('fill-opacity', function (d) { return d.conds; });
 
         // averages
         svg.selectAll('.average-bar')
-            .data(averages[cities[0]])
+            .data(averages[initCity])
             .enter().append('rect')
                 .attr('class', 'average-bar')
                 .attr('x', function (d) { return x(d.date); })
@@ -231,7 +231,7 @@ NodeList.prototype.forEach = Array.prototype.forEach;
 
         // draw inner quartile
         svg.selectAll('.quart')
-            .data(averages[cities[0]])
+            .data(averages[initCity])
             .enter().append('rect')
                 .attr('class', 'quart')
                 .attr('x', function (d) { return x(d.date); })
@@ -244,7 +244,7 @@ NodeList.prototype.forEach = Array.prototype.forEach;
 
         // draw the median
         svg.selectAll('.median')
-            .data(averages[cities[0]])
+            .data(averages[initCity])
             .enter().append('line')
                 .attr('class', 'median')
                 .attr('x1', function (d) { return x(d.date); })
@@ -253,7 +253,7 @@ NodeList.prototype.forEach = Array.prototype.forEach;
 
         // add all the 2014 bars
         bars = svg.selectAll('.bar')
-            .data(dailies[cities[0]])
+            .data(dailies[initCity])
             .enter().append('rect')
                 .attr('class', 'bar')
                 .attr('x', function (d) { return x(d.date); })
@@ -264,36 +264,80 @@ NodeList.prototype.forEach = Array.prototype.forEach;
                 .attr('fill-opacity', 0);
 
         svg.selectAll('.hit')
-            .data(dailies[cities[0]])
+            .data(dailies[initCity])
             .enter().append('rect')
                 .attr('class', 'hit')
                 .attr('x', function (d) { return x(d.date); })
                 .attr('y', 0)
                 .attr('width', barWidth)
                 .attr('height', height)
-                .attr('fill', 'rgba(254, 254, 254, 0.001)')
+                .attr('fill', '#000')
+                .attr('fill-opacity', 0)
                 .on('mouseover', showDetail);
 
+        var sMargin = {top: 10, right: 50, bottom: 30, left: 100};
+        var sWidth = windowWidth - sMargin.left - sMargin.right;
+        var sHeight = height / 3 - sMargin.top - sMargin.bottom;
+        var sY = d3.scale.linear().domain([0, cities.length]).range([sHeight, 0]);
+        var sX = d3.time.scale()
+            .domain([new Date(2014, 0, 1), new Date(2014, 11, 31)])
+            .range([0, sWidth]);
 
+        /* show the sunshine measurements in one grid */
+        var sunshine = d3.select('#sunshine')
+            .attr('width', sWidth + sMargin.left + sMargin.right)
+                .attr('height', sHeight + sMargin.top + sMargin.bottom)
+                .append('g')
+                    .attr('transform', 'translate(' + sMargin.left + ',' + sMargin.top + ')');
+
+        var sunYAxis = d3.svg.axis()
+            .scale(sY)
+            .orient('left')
+            .tickFormat(function (d, i) { return cities[i]; })
+            .tickValues(d3.range(cities.length));
+
+        sunshine.append('g')
+            .attr('class', 'y axis')
+            .call(sunYAxis)
+            .attr('transform', 'translate(0,' + sY(cities.length - 1) / 2 + ')');
+
+        var row = sunshine.selectAll('.row')
+            .data(cities)
+            .enter().append('g')
+                .attr('class', 'row')
+                .attr('transform', function (d, i) { return 'translate(0, ' + sY(i) + ')'; });
+
+        row.selectAll('.sun')
+            .data(function (d) { return dailies[d]; })
+            .enter().append('rect')
+                .attr('class', 'sun')
+                .attr('x', function (d) { return sX(d.date); })
+                .attr('width', barWidth)
+                .attr('height', function () { return sY(cities.length - 1) - 2; })
+                .attr('fill', '#ed0')
+                .attr('fill-opacity', function (d) { return d.conds; });
     }
 
     function updateCity(e) {
+
+        var currentCity = e.target.textContent;
+
         console.log(e);
         svg.selectAll('.bar')
-            .data(dailies[e.target.textContent])
+            .data(dailies[currentCity])
             .transition()
             .attr('y', function (d) { return y(d.high); })
             .attr('height', function (d) { return height - y(d.high - d.low); });
 
         // averages
         svg.selectAll('.average-bar')
-            .data(averages[e.target.textContent])
+            .data(averages[currentCity])
             .transition()
                 .attr('y', function (d) { return y(d.maxAvg); })
                 .attr('height', function (d) { return height - y(d.maxAvg - d.minAvg); });
 
         svg.selectAll('.quart')
-            .data(averages[e.target.textContent])
+            .data(averages[currentCity])
             .transition()
                 .attr('y', function (d) { return y(d3.quantile(d.numbers, 0.75)); })
                 .attr('height', function (d) {
@@ -301,9 +345,15 @@ NodeList.prototype.forEach = Array.prototype.forEach;
                 });
 
         svg.selectAll('.median')
-            .data(averages[e.target.textContent])
+            .data(averages[currentCity])
             .transition()
                 .attr('transform', function (d) { return 'translate(0,' + y(d3.quantile(d.numbers, 0.5)) + ')'; });
+
+        svg.selectAll('.conditions')
+            .data(dailies[currentCity])
+            .transition()
+                .attr('fill-opacity', function (d) { return d.conds; });
+
 
         // svg.select('.precip')
         //     .data([dailies[e.target.textContent]])

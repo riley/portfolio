@@ -2,7 +2,7 @@
 
 var fs = require('fs');
 
-var cities = ['denver', 'nyc', 'portland', 'la', 'chicago', 'kc'];
+var cities = ['denver', 'nyc', 'portland', 'la', 'chicago', 'kc', 'dublin'];
 
 var matcher = new RegExp('(' + cities.join('|') + ')_2014');
 var matchingFilter = function (name) { return name.match(matcher); };
@@ -32,10 +32,14 @@ Object.keys(data).forEach(function (city) {
         }, 0) / json.history.observations.length;
         var date = new Date(2014, json.history.dailysummary[0].date.mon - 1, json.history.dailysummary[0].date.mday);
 
+        var niceWeatherPercent = json.history.observations.filter(function (o) {
+            return o.conds === 'Clear' || o.conds === 'Scattered Clouds' || o.conds === 'Partly Cloudy';
+        }).length / json.history.observations.length;
+
         return {
             low: low,
             high: high,
-            conds: json.history.observations.map(function (o) { return o.conds; }),
+            conds: niceWeatherPercent,
             avg: parseFloat(avg.toFixed(2), 10),
             date: date,
             precip: parseFloat(json.history.dailysummary[0].precipi, 10)
@@ -46,6 +50,12 @@ Object.keys(data).forEach(function (city) {
 
     console.log('created ' + city);
 });
+
+try {
+    fs.unlinkSync('./data/dailies.json');
+} catch (e) {
+    console.log('failed to delete dailies.json', e);
+}
 
 fs.writeFileSync('./data/dailies.json', JSON.stringify(finalData));
 
