@@ -2,7 +2,7 @@
 
 var fs = require('fs');
 
-var cities = ['denver', 'nyc', 'portland', 'la', 'chicago', 'kc', 'dublin'];
+var cities = ['denver', 'nyc', 'portland', 'la', 'chicago', 'kc', 'dublin', 'istanbul'];
 
 var matcher = new RegExp('(' + cities.join('|') + ')_2014');
 var matchingFilter = function (name) { return name.match(matcher); };
