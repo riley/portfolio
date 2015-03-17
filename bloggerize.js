@@ -43,9 +43,9 @@ fs.mkdirSync('app/blog');
 posts.forEach(function (post) {
     var date = new Date(post.fileName.substr(0, 10));
     var slug = post.fileName.split('_')[1].replace('.md', '');
-    console.log(date);
     var postHtml = ejs.render(indexStr, {title: 'blog post', content: post.html}, {debug: true});
     fs.writeFileSync('app/blog/' + slug + '.html', postHtml);
+    console.log('created', date, slug);
 });
 
 // create archive page
@@ -53,5 +53,4 @@ posts.forEach(function (post) {
 fs.writeFileSync('app/index.html', index);
 fs.writeFileSync('app/about.html', about);
 
-console.log(index);
 process.exit();

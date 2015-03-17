@@ -2,19 +2,19 @@
 
 var fs = require('fs');
 
-var cities = ['denver', 'nyc', 'portland', 'la', 'chicago', 'kc', 'dublin', 'istanbul'];
+var cities = ['denver', 'nyc', 'portland', 'la', 'chicago', 'kc', 'sydney', 'dublin', 'istanbul'];
 
 var matcher = new RegExp('(' + cities.join('|') + ')_2014');
 var matchingFilter = function (name) { return name.match(matcher); };
 
 var files = cities.reduce(function (memo, city) {
-    memo[city] = fs.readdirSync('/repos/weather/data/' + city).filter(matchingFilter);
+    memo[city] = fs.readdirSync('/Users/Riley/Documents/repos/weather/data/' + city).filter(matchingFilter);
     return memo;
 }, {});
 
 var data = Object.keys(files).reduce(function (m, key) {
     m[key] = files[key].map(function (file) {
-        return JSON.parse(fs.readFileSync('/repos/weather/data/' + key + '/' + file).toString());
+        return JSON.parse(fs.readFileSync('/Users/Riley/Documents/repos/weather/data/' + key + '/' + file).toString());
     });
     return m;
 }, {});
@@ -33,7 +33,7 @@ Object.keys(data).forEach(function (city) {
         var date = new Date(2014, json.history.dailysummary[0].date.mon - 1, json.history.dailysummary[0].date.mday);
 
         var niceWeatherPercent = json.history.observations.filter(function (o) {
-            return o.conds === 'Clear' || o.conds === 'Scattered Clouds' || o.conds === 'Partly Cloudy';
+            return o.conds === 'Clear' || o.conds === 'Scattered Clouds' || o.conds === 'Mostly Sunny' || o.conds === 'Sunny' || o.conds === 'Partly Cloudy';
         }).length / json.history.observations.length;
 
         return {

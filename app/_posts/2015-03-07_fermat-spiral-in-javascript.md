@@ -32,7 +32,7 @@ So how does this relate to our sunflower? Basically, the placement around the ci
 So if I wanted to place the dots for my visualization, I would iterate through a range of numbers, moving 136.508° around the spiral each step, gradually increasing my radius. I end up with something like this:
 
 
-![dots](/images/datacircle.png "dots")
+![dots](/images/data_circle.png "dots")
 [codepen](http://codepen.io/anon/pen/zxJKwv)
 
 Changing the scale factor will make the dots more spread out.

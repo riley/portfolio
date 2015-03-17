@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="description" content="On graphics, math and data visualization. Assembled by creator of digital goods, Riley Davis.">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>About - rileydav.is</title>
+    <title>blog post - rileydav.is</title>
 
     <!-- Add to homescreen for Chrome on Android -->
     <meta name="mobile-web-app-capable" content="yes">
@@ -89,18 +89,22 @@
       <p class="tagline">On graphics, math and data visualization. Assembled by creator of digital goods, Riley Davis.</p>
 
       <!-- bloggerize.js -->
-      <ul class="work" id="work"><li class="project">
-    <img src="" />
-    <h3>Closer To Home</h3>
-</li>
-<li class="project">
-    <img src="" />
-    <h3>Mr. Davis<h3>
-</li>
-<li class="project">
-    <img src="">
-    <h3>Weather</h3>
-</li></ul>
+      <article><h2 id="javascript-date-object-and-arrays">JavaScript Date object and Arrays</h2>
+<h4 id="march-3-2015">March 3, 2015</h4>
+<p>Short post. Putting this here for myself and future googlers.</p>
+<p>Did you know that you can easily create an array of all the days in a year? You don&#39;t have to explicitly set the month parameter in <code>new Date()</code>.</p>
+<p>first we&#39;ll make a range function, unless you&#39;re using the underscore/loash method <code>_.range</code></p>
+<pre><code class="lang-javascript">function range(num) {
+    return Array.apply(null, Array(num)).map(function (_, i) {return i;});
+}
+</code></pre>
+<p>which will give us an array of numbers from 0-364. All we have to do to transform that into an array of <code>Date</code> objects is map them. The day parameter will automagically do a modulo into the month parameter:</p>
+<pre><code class="lang-javascript">var dateArr = range(365).map(function (i) {
+    return new Date(2014, 0, i);
+});
+</code></pre>
+<p>Presto! You don&#39;t ever have to remember the number of days in each month again!</p>
+</article>
       <!-- endbuild -->
 
       <a href="/archive.html">Archives</a>

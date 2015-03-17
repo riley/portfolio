@@ -1,0 +1,52 @@
+
+body {
+    background: #000;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    color: white;
+    position: relative;
+    font-family: Helvetica, Arial, Helvetica, sans-serif;
+}
+
+h1 {
+    text-transform: uppercase;
+    font-size: 2em;
+    color: #9aafff;
+    margin: 5px;
+}
+
+.controls {
+    width: 200px;
+    float: right;
+}
+a:link, a:visited {
+    display: block;
+    padding: 4px;
+    color: #cad7ff;
+    font-size: .8em;
+    text-decoration: none;
+    background: #445566;
+}
+
+a:hover, a:active {
+    background: #667788;
+}
+
+p {
+    color: #999;
+    font-size: .7em;
+    line-height: 1.5em;
+    padding: 5px;
+}
+
+p span {
+    color: white;
+    font-weight: bold;
+}
+
+.earth { color: #9cf; }
+.ecliptic { color: #ffff00; }
+.equator { color: #8888ff; }
+.polaris { color: #ff00ff; }
+.alpha { color: #ff99ff;}

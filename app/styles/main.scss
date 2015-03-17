@@ -13,6 +13,8 @@
  */
 @import 'components/components';
 
+@import 'prism';
+
 html,
 body {
   width: 100%;
@@ -34,9 +36,33 @@ body.open {
   overflow: hidden;
 }
 
+h2 {
+  font-size: 2.5em;
+}
+
+p code {
+  background: #f5f2f0;
+  color: #DD4A68;
+  padding: 1px 9px;
+  border-radius: 3px;
+}
+
+a:link, a:visited {
+  color: rgb(177, 25, 82);
+  transition: color .3s;
+}
+
+a:hover, a:active {
+  color: rgb(99, 15, 47);
+}
+
 article {
   border-bottom: 1px dashed #ccc;
   margin-bottom: 40px;
+}
+
+article img {
+  width: 100%;
 }
 
 article h4 {
@@ -45,13 +71,6 @@ article h4 {
   font-style: italic;
   border-bottom: 1px solid #b3b3b3;
   padding-bottom: 10px;
-}
-
-code {
-  padding: 4px 7px;
-  border-radius: 3px;
-  background: #eee;
-  color: #f88;
 }
 
 .app-bar {

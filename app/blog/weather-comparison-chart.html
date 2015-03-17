@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="description" content="On graphics, math and data visualization. Assembled by creator of digital goods, Riley Davis.">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Home - rileydav.is</title>
+    <title>blog post - rileydav.is</title>
 
     <!-- Add to homescreen for Chrome on Android -->
     <meta name="mobile-web-app-capable" content="yes">
@@ -89,15 +89,7 @@
       <p class="tagline">On graphics, math and data visualization. Assembled by creator of digital goods, Riley Davis.</p>
 
       <!-- bloggerize.js -->
-      <article><h2 id="javascript-enigma-machine-pt-1-">JavaScript Enigma Machine (Pt. 1)</h2>
-<h4 id="march-9-2015">March 9, 2015</h4>
-<p>Recently I had the opportunity to build a WWII Enigma Machine simulator for work. This was a blast for several reasons.</p>
-<ul>
-<li>It&#39;s an Enigma machine - super cool</li>
-<li>I made myself build the thing without using a framework</li>
-<li>I learned a lot about SVG</li>
-</ul>
-</article>,<article><h2 id="weather-comparison-chart">Weather Comparison Chart</h2>
+      <article><h2 id="weather-comparison-chart">Weather Comparison Chart</h2>
 <h4 id="feburary-7-2015">Feburary 7, 2015</h4>
 <p><img src="/images/weather_thumb.png" alt="weather chart thumbnail"></p>
 <p>All my friends scattered to the wind after college and left Kansas City for other places in the country. Now, a few years after this diaspora, and a couple of children later, we talk about getting back together. There are arguments about what city has the best beer and the best weather, but still offers lots to do, and is relatively close to our families. No one city has the best of everything. A couple of our friends are moving to Portland and while it sounds pretty great, my wife gets a bit of the <a href="http://www.mayoclinic.org/diseases-conditions/seasonal-affective-disorder/basics/definition/con-20021047">SAD</a> if it&#39;s too cloudy.</p>
@@ -241,44 +233,6 @@ svg.append(&#39;g&#39;) // x axis
 <p>Showing the sunshine as a percentage was pretty fun. The measurements are from 2014, so I have the hourly condition measurements. Conditions can be something like &quot;cloudy&quot;, &quot;snow&quot;, or &quot;brimstone&quot;, etc. I have the daily list of 24 observations, and made the yellow bar more translucent the more cloudy it was. I counted the conditions &quot;clear&quot;, &quot;sunny&quot;, &quot;scattered clouds&quot;, &quot;partly cloudy&quot; (I&#39;m a glass-half-full sort of guy) and &quot;mostly sunny&quot; as clear-ish. So if it was snowing for half the day and clear for the other half, the yellow bar would be at <code>0.5</code> opacity.</p>
 <h3 id="finally">Finally</h3>
 <p>It&#39;s the middle of the winter here in nyc, and LA looks pretty great after building this chart. And to answer the original question, yes, it really is that cloudy in Portland.</p>
-</article>,<article><h2 id="javascript-date-object-and-arrays">JavaScript Date object and Arrays</h2>
-<h4 id="march-3-2015">March 3, 2015</h4>
-<p>Short post. Putting this here for myself and future googlers.</p>
-<p>Did you know that you can easily create an array of all the days in a year? You don&#39;t have to explicitly set the month parameter in <code>new Date()</code>.</p>
-<p>first we&#39;ll make a range function, unless you&#39;re using the underscore/loash method <code>_.range</code></p>
-<pre><code class="lang-javascript">function range(num) {
-    return Array.apply(null, Array(num)).map(function (_, i) {return i;});
-}
-</code></pre>
-<p>which will give us an array of numbers from 0-364. All we have to do to transform that into an array of <code>Date</code> objects is map them. The day parameter will automagically do a modulo into the month parameter:</p>
-<pre><code class="lang-javascript">var dateArr = range(365).map(function (i) {
-    return new Date(2014, 0, i);
-});
-</code></pre>
-<p>Presto! You don&#39;t ever have to remember the number of days in each month again!</p>
-</article>,<article><h2 id="fermat-s-spiral-in-javascript">Fermat&#39;s Spiral in JavaScript</h2>
-<h4 id="march-7-2015">March 7, 2015</h4>
-<p><img src="/images/dots_final.png" alt="dots final"></p>
-<p><strong>TL;DR</strong></p>
-<pre><code class="lang-javascript">var scaleFactor = 2;
-for (var i = 0; i &lt; num; i++) {
-    var theta = 2.39998131 * i;
-    var radius = scaleFactor * Math.sqrt(theta);
-    var x = Math.cos(theta) * radius;
-    var y = Math.sin(theta) * radius;
-}
-</code></pre>
-<p>I needed to visualize some survey data where I could see proportions of categorical data as well as the actual number of respondents. While almost all data could be bar charts, this isn&#39;t very exciting or pretty. The number of respondents was a manageable number (in the hundreds) so I could represent each one atomically. The next obvious thing would be to make a grid of squares, which is neat, but we can do better.</p>
-<p><img src="/images/datagrid.png" alt="data grid" title="data grid image">
-<a href="http://codepen.io/anon/pen/LEJNBg">codepen</a></p>
-<p>It would be fun to make a <a href="http://bl.ocks.org/mbostock/1021841">force layout</a> in d3, which would get us individual nodes showing proportions, but all that movement amounts to <a href="http://en.wikipedia.org/wiki/Chartjunk">chartjunk</a>. I love me some verlet simulations, but less is more when trying to show data.</p>
-<p>So basically what we want is a circle packing algorithm. All the nodes are the same size, since they represent a person. This will save us having to write a more complex algorithm to place each circle. I thought a great way lay this out would be something like a sunflower. So how would we accomplish this?</p>
-<p>You might remember the Fibonacci sequence from elementary school. The ratio generated by one number in the sequence to the next approaches <strong>1.6180339887...:1</strong> or <code>φ</code> the Golden Section.</p>
-<p>So how does this relate to our sunflower? Basically, the placement around the circle is a function of the Golden Angle. Basically, if we divide the circumference (<code>2π</code>) of the circle into two sections, the ratio of the length of the smaller to the larger is the golden section (<code>φ</code>). The arc length of the smaller section comes out to 136.508° or 2.39998131 radians. The radius at whatever point is the square root of the angle times an arbitrary scaling factor.</p>
-<p>So if I wanted to place the dots for my visualization, I would iterate through a range of numbers, moving 136.508° around the spiral each step, gradually increasing my radius. I end up with something like this:</p>
-<p><img src="/images/data_circle.png" alt="dots" title="dots">
-<a href="http://codepen.io/anon/pen/zxJKwv">codepen</a></p>
-<p>Changing the scale factor will make the dots more spread out.</p>
 </article>
       <!-- endbuild -->
 
