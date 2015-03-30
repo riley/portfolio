@@ -1,4 +1,4 @@
-var zodiac = {
+var constellations = {
     aries: {
         imagePath: 'images/aries.png',
         shapePath: [

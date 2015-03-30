@@ -17,7 +17,9 @@ which will give us an array of numbers from 0-364. All we have to do to transfor
 
 ```javascript
 var dateArr = range(365).map(function (i) {
-    return new Date(2014, 0, i);
+    // must add 1 to the date
+    // January 1, 2014 would be new Date(2014, 0, 1)
+    return new Date(2014, 0, i + 1);
 });
 ```
 

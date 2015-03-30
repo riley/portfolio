@@ -1,52 +1,37 @@
-
 body {
-    background: #000;
-    margin: 0;
     padding: 0;
-    overflow: hidden;
-    color: white;
-    position: relative;
-    font-family: Helvetica, Arial, Helvetica, sans-serif;
+    margin: 0;
 }
 
-h1 {
-    text-transform: uppercase;
-    font-size: 2em;
-    color: #9aafff;
-    margin: 5px;
+* {
+    font-family: sans-serif;
+}
+
+#stars {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    top: 0;
+    left: 0;
 }
 
 .controls {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    box-sizing: border-box;
+    padding: 20px;
     width: 200px;
-    float: right;
-}
-a:link, a:visited {
-    display: block;
-    padding: 4px;
-    color: #cad7ff;
-    font-size: .8em;
-    text-decoration: none;
-    background: #445566;
-}
-
-a:hover, a:active {
-    background: #667788;
-}
-
-p {
-    color: #999;
-    font-size: .7em;
-    line-height: 1.5em;
-    padding: 5px;
-}
-
-p span {
+    background: rgba(0, 0, 0, 0.5);
     color: white;
-    font-weight: bold;
 }
 
-.earth { color: #9cf; }
-.ecliptic { color: #ffff00; }
-.equator { color: #8888ff; }
-.polaris { color: #ff00ff; }
-.alpha { color: #ff99ff;}
+#constellations {
+    margin: 0;
+    padding: 0;
+}
+
+.zodiac-sign {
+    list-style: none;
+}
