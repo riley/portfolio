@@ -16,14 +16,16 @@
     <!-- le magic -->
     <div id="controls" class="controls">
         <h1>close to home</h1>
-        <p>This is a model of the real positions of the stars in the zodiac constellations. The <span class="earth">earth is the blue dot</span> in the center, the <span class="equator">blue line is the celestial equator</span>, and the <span class="ecliptic">yellow line is the ecliptic</span> (the apparent path of the sun throughout the year).</p>
+        <p class="controls--copy">This is a model of the real positions of the stars in the zodiac constellations. The <span class="earth">earth is the blue dot</span> in the center, the <span class="equator">blue line is the celestial equator</span>, and the <span class="ecliptic">yellow line is the ecliptic</span> (the apparent path of the sun throughout the year).</p>
         <!-- <p>The yellow <span class="alpha">star with the magenta ring</span> around it is Alpha Centauri, the closest star at 4.3 light years, or about 25.3 trillion miles.</p> -->
-        <p>Obviously, <span>the sizes of the stars are not to scale.</span></p>
-        <a href="#" id="lock-center">Move camera to Earth</a>
+        <p class="controls--copy">Obviously, <span>the sizes of the stars are not to scale.</span></p>
+        <a href="#" class="btn" id="lock-center">Move camera to Earth</a>
         <a href="#" style="display: none;" id="release-lock">Release camera</a>
-        <ul id="constellations">
+        <ul id="constellations" class="constellations">
         </ul>
     </div>
+
+    <svg id="overlay"></svg>
 
 
 <!-- shaders for stars -->
@@ -59,9 +61,14 @@
 
 <script src="js/three.min.js" type="text/javascript" charset="utf-8"></script>
 <script src="js/TrackballControls.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/Projector.js"></script>
 <script src="js/constellation_coordinates.js" type="text/javascript"></script>
 <script type="text/javascript">
 /* global THREE, zodiac */
+
+var byId = document.getElementById.bind(document);
+var ns = "http://www.w3.org/2000/svg";
+var counter = 0;
 
 var spectralMap = { // pulled from wikipedia
     'O': { color: 0x9aafff },
@@ -72,6 +79,10 @@ var spectralMap = { // pulled from wikipedia
     'K': { color: 0xfff2a1 },
     'M': { color: 0xff6151 }
 };
+
+var initialCameraDistance = 400;
+
+var colors = [0x1f77b4, 0xff7f0e, 0x2ca02c, 0xd62728, 0x9467bd, 0x8c564b, 0xe377c2, 0x7f7f7f, 0xbcbd22, 0x17becf, 0xffffff, 0xffff00];
 
 /*
 expecting
@@ -124,7 +135,8 @@ function toCartesian ( rightAscension, declination ) {
 }
 
 function Zodiac() {
-
+    this.angle = 0;
+    this.rotating = true;
 }
 
 Zodiac.prototype.init = function () {
@@ -134,6 +146,7 @@ Zodiac.prototype.init = function () {
         if (xhr.status === 200) {
             this.stars = JSON.parse(xhr.responseText);
             this.engineSetup();
+            this.overlaySetup();
             this.populateStars();
             this.populateLines();
             this.render();
@@ -146,11 +159,11 @@ Zodiac.prototype.init = function () {
 };
 
 Zodiac.prototype.engineSetup = function () {
-    this.el = document.getElementById('stars');
+    this.el = byId('stars');
     this.scene = new THREE.Scene();
 
     this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 10000);
-    this.camera.position.z = 300;
+    this.camera.position.z = initialCameraDistance;
 
     this.controls = new THREE.TrackballControls(this.camera);
     this.controls.rotateSpeed = 1.0;
@@ -174,7 +187,30 @@ Zodiac.prototype.engineSetup = function () {
 
     this.el.appendChild(this.renderer.domElement);
 
+    this.renderer.domElement.addEventListener('mousedown', function (e) {
+        this.rotating = false;
+    }.bind(this));
+
     window.addEventListener('resize', this.onWindowResize.bind(this));
+
+};
+
+Zodiac.prototype.overlaySetup = function () {
+    var svg = byId('overlay');
+    svg.setAttribute('width', window.innerWidth);
+    svg.setAttribute('height', window.innerHeight);
+
+    this.projector = new THREE.Projector();
+
+    Object.keys(constellations).forEach(function (c, i) {
+        var con = constellations[c];
+
+        var circle = document.createElementNS(ns, 'circle');
+        circle.setAttribute('r', 10);
+        circle.setAttribute('fill', 'rgba(255, 0, 0, 1)');
+        circle.id = 'o-' + c;
+        svg.appendChild(circle);
+    });
 };
 
 Zodiac.prototype.populateStars = function () {
@@ -196,8 +232,8 @@ Zodiac.prototype.populateStars = function () {
     var shaderMaterial = new THREE.ShaderMaterial({
         uniforms: this.uniforms,
         attributes: this.attributes,
-        vertexShader: document.getElementById('v-shader').textContent,
-        fragmentShader: document.getElementById('f-shader').textContent,
+        vertexShader: byId('v-shader').textContent,
+        fragmentShader: byId('f-shader').textContent,
         transparent: true
     });
 
@@ -209,7 +245,6 @@ Zodiac.prototype.populateStars = function () {
         return v;
     });
 
-    // var geometry = new THREE.SphereGeometry(100, 68, 38);
     var sphere = new THREE.PointCloud(geometry, shaderMaterial);
 
     for (var v = 0; v < sphere.geometry.vertices.length; v++) {
@@ -223,25 +258,42 @@ Zodiac.prototype.populateStars = function () {
 
 Zodiac.prototype.populateLines = function () {
     var lMaterial = new THREE.LineBasicMaterial({
-        color: 0xffffff, 
+        color: 0xffffff,
         opacity: 1,
         lineWidth: 3,
         vertexColors: THREE.VertexColors
     });
 
-    var list = document.getElementById('constellations');
+    var list = byId('constellations');
 
     // create zodiac constellation lines
-    Object.keys(constellations).forEach(function (c) {
+    Object.keys(constellations).forEach(function (c, i) {
         var geo = new THREE.Geometry();
+        var con = constellations[c];
 
-        geo.vertices = constellations[c].shapePath.map(function (path) {
+        var barycenter = con.shapePath.reduce(function (vec, path) {
+            var coord = toCartesian(path.ra, path.dec);
+            coord.multiplyScalar(path.dist);
+            vec.x += coord.x;
+            vec.y += coord.y;
+            vec.z += coord.z;
+
+            return vec;
+        }, new THREE.Vector3());
+
+        barycenter.x /= con.shapePath.length;
+        barycenter.y /= con.shapePath.length;
+        barycenter.z /= con.shapePath.length;
+        var b = new THREE.Object3D();
+        b.position = barycenter;
+
+        geo.vertices = con.shapePath.map(function (path) {
             return toCartesian(path.ra, path.dec).multiplyScalar(path.dist);
         });
 
-        geo.colors = constellations[c].shapePath.map(function (path) {
-            return new THREE.Color(0xffffff * Math.random())
-        })
+        geo.colors = con.shapePath.map(function (path) {
+            return new THREE.Color(colors[i])
+        });
 
         var line = new THREE.Line(geo, lMaterial);
         this.scene.add(line);
@@ -249,12 +301,52 @@ Zodiac.prototype.populateLines = function () {
 
         list.insertAdjacentHTML('beforeend', '<li class="zodiac-sign">' + c + '</li>');
 
+        con.barycenter = b;
+
     }, this);
+
 }
 
 Zodiac.prototype.animate = function () {
+
     requestAnimationFrame(this.animate.bind(this));
     this.controls.update();
+
+    if (this.rotating) {
+        var z = Math.cos(this.angle) * initialCameraDistance;
+        var x = Math.sin(this.angle) * initialCameraDistance;
+
+        this.camera.position.x = x;
+        this.camera.position.z = z;
+
+        this.angle -= 0.001;
+
+        this.controls.position0 = this.camera.position.clone();
+    }
+
+    if (counter++ < 20) {
+
+        Object.keys(constellations).forEach(function (c, i) {
+            var con = constellations[c];
+
+            var v3 = new THREE.Vector3();
+            this.projector.projectVector(v3.setFromMatrixPosition(con.barycenter.matrixWorld), this.camera);
+
+            v3.x = (v3.x * window.innerWidth / 2) + window.innerWidth / 2;
+            v3.y = -(v3.y * window.innerHeight / 2) + window.innerHeight / 2;
+
+            var circle = byId('o-' + c);
+            circle.setAttribute('cx', v3.x);
+            circle.setAttribute('cy', v3.y);
+
+            console.log('projected vector', v3);
+
+        }.bind(this));
+    }
+
+
+
+    this.render();
 };
 
 Zodiac.prototype.render = function () {

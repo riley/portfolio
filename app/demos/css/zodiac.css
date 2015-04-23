@@ -27,11 +27,51 @@ body {
     color: white;
 }
 
+.controls--copy {
+    font-size: 12px;
+    line-height: 1.5em;
+    color: #ccc;
+}
+
 #constellations {
     margin: 0;
     padding: 0;
 }
 
+.btn {
+    text-decoration: none;
+    font-size: 14px;
+    display: block;
+    padding: 7px;
+    border-radius: 3px;
+    margin-bottom: 5px;
+    color: white;
+    background: linear-gradient(to top right, #b11952, #832146);
+}
+
+.btn:hover {
+    background: linear-gradient(to top right, #b11952, #C04070);
+}
+
 .zodiac-sign {
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, .3);
+    font-size: 12px;
+    display: inline-block;
+    width: 60px;
+    margin-right: 6px;
+    padding: 7px;
     list-style: none;
+    -webkit-transition: .3s;
+    transition: background .3s;
+}
+
+.zodiac-sign:hover {
+    background: black;
+}
+
+#overlay {
+    position: absolute;
+    pointer-events: none;
 }

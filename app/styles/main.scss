@@ -409,6 +409,7 @@ main {
 }
 
 .logo {
+  cursor: pointer;
   margin: 0;
   font-weight: bold;
 
@@ -429,6 +430,61 @@ header .tagline {
   color: #ddd;
 }
 
+/* About/Work page */
+.work {
+  padding: 0;
+
+  .zodiac {
+    background-image: url(/images/zodiac_work.png);
+  }
+
+  .mrdavis {
+    background-image: url(/images/mrdavis_work.png);
+  }
+
+  .weather {
+    background-image: url(/images/weather_work.png);
+  }
+
+  .project {
+    background-size: cover;
+    background-repeat: no-repeat;
+    position: relative;
+    list-style: none;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px dashed #ccc;
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+
+    .project__title {
+      padding: 0;
+      margin: 0;
+    }
+
+    .project__link {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .project__description {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      color: white;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 10px;
+    }
+
+    .project__copy {
+      margin: 0;
+      font-size: 14px;
+    }
+  }
+}
+
 @media (min-width: 600px) {
   .app-bar {
     display: none;
@@ -445,10 +501,6 @@ header .tagline {
 
   .tagline {
     display: none;
-  }
-
-  .logo {
-
   }
 
   .i-like-to {

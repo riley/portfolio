@@ -1,6 +1,6 @@
 ## JavaScript Date object and Arrays
 
-#### March 3, 2015
+#### February 7, 2015
 
 Short post. Putting this here for myself and future googlers.
 

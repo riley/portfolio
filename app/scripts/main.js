@@ -51,10 +51,13 @@ NodeList.prototype.forEach = HTMLCollection.prototype.forEach = Array.prototype.
     }
   });
 
-  document.querySelectorAll('article a').forEach(function (anchor) {
+  document.querySelectorAll('article a, .work a').forEach(function (anchor) {
     anchor.setAttribute('target', '_blank');
   });
 
+  document.querySelector('svg.logo').addEventListener('click', function () {
+    location.href = '/';
+  });
 
   setTimeout(function () {
     var rects = document.getElementsByClassName('i-like-to');
@@ -63,5 +66,14 @@ NodeList.prototype.forEach = HTMLCollection.prototype.forEach = Array.prototype.
       r.classList.add('move-it-move-it');
     });
   }, 1000);
+
+  // firefox fallback. apparently ff does not support css transforms on masks
+  setTimeout(function () {
+    var rects = document.getElementsByClassName('i-like-to');
+
+    Array.prototype.forEach.call(rects, function (r) {
+      r.setAttribute('transform', 'translate(60, 0)');
+    });
+  }, 3000);
 
 })();
